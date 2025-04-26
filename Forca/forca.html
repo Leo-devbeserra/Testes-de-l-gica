@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Forca</title>
+  <link rel='stylesheet' type='text/css' media='screen' href="style.css">
+</head>
+<body>
+  <h1>Jogo da Forca</h1>
+  <div class="palavra" id="palavraMostrada">_ _ _ _ _</div>
+  <div class="letras-erradas" id="letrasErradas"></div>
+  <input type="text" id="inputLetra" maxlength="1" autofocus>
+  <br>
+  <button onclick="tentarLetra()">Tentar</button>
+
+  <script>
+    const opcoes = ["emprego", "estagio", "desenvolvedor", "analista", "coisa", "nenhuma"];
+    const palavraSecreta = opcoes[Math.floor(Math.random() * opcoes.length)].toLowerCase();
+    const letrasCertas = new Set();
+    const letrasErradas = new Set();
+    const tentativasMaximas = 6;
+
+    function atualizarTela() {
+      let palavraMostrada = "";
+      for (let letra of palavraSecreta) {
+        if (letrasCertas.has(letra)) {
+          palavraMostrada += letra + " ";
+        } else {
+          palavraMostrada += "_ ";
+        }
+      }
+      document.getElementById("palavraMostrada").innerText = palavraMostrada.trim();
+      document.getElementById("letrasErradas").innerText = "Letras erradas: " + Array.from(letrasErradas).join(" ");
+    }
+
+    function tentarLetra() {
+      const input = document.getElementById("inputLetra");
+      const tentativa = input.value.toLowerCase();
+      input.value = "";
+      input.focus();
+
+      if (!tentativa.match(/^[a-zA-Z]$/)) {
+        alert("Digite apenas uma letra válida!");
+        return;
+      }
+
+      if (letrasCertas.has(tentativa) || letrasErradas.has(tentativa)) {
+        alert("Você já tentou essa letra!");
+        return;
+      }
+
+      if (palavraSecreta.includes(tentativa)) {
+        letrasCertas.add(tentativa);
+      } else {
+        letrasErradas.add(tentativa);
+        alert(`Errou! Restam ${tentativasMaximas - letrasErradas.size} tentativas.`);
+      }
+
+      atualizarTela();
+      verificarFimDeJogo();
+    }
+
+    function verificarFimDeJogo() {
+      if ([...palavraSecreta].every(letra => letrasCertas.has(letra))) {
+        setTimeout(() => alert("\nParabéns! Você acertou a palavra: " + palavraSecreta), 100);
+        resetarJogo();
+      } else if (letrasErradas.size >= tentativasMaximas) {
+        setTimeout(() => alert("\nGame Over! A palavra era: " + palavraSecreta), 100);
+        resetarJogo();
+      }
+    }
+
+    function resetarJogo() {
+      location.reload();
+    }
+
+    atualizarTela();
+  </script>
+</body>
+</html>
